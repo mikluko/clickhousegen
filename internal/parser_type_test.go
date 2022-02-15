@@ -11,6 +11,7 @@ var testParseTypeItems = []struct {
 	In      string
 	Type    string
 	Imports []string
+	Consts  map[string]string
 	Err     error
 }{
 	{In: "String", Type: "string"},
@@ -44,6 +45,7 @@ var testParseTypeItems = []struct {
 	{In: "Ring", Type: "orb.Ring", Imports: []string{"github.com/paulmach/orb"}},
 	{In: "Polygon", Type: "orb.Polygon", Imports: []string{"github.com/paulmach/orb"}},
 	{In: "MultiPolygon", Type: "orb.MultiPolygon", Imports: []string{"github.com/paulmach/orb"}},
+	{In: "Enum8( 'a' = 1, 'b' = 2 )", Type: "string", Consts: map[string]string{"A": "a", "B": "b"}},
 }
 
 func TestParseType(t *testing.T) {
@@ -60,6 +62,7 @@ func TestParseType(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, item.Type, typ.Type)
 				assert.Equal(t, item.Imports, typ.Imports)
+				assert.Equal(t, item.Consts, typ.Consts)
 			}
 		})
 	}

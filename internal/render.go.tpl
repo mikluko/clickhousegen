@@ -11,6 +11,17 @@ import (
 )
 {{ end }}
 
+{{- range .Struct.Fields }}
+{{ if .Consts }}
+    {{- $field := . }}
+    const (
+    {{- range $k, $v := .Consts }}
+        {{ $field.Name }}{{ $k }} {{ $field.Type }} = "{{ $v }}"
+    {{- end }}
+    )
+{{- end }}
+{{- end }}
+
 type {{ .Struct.Name }} struct {
   {{- range .Struct.Fields }}
   {{ .Name }} {{ .Type }} `{{ .Tag }}`

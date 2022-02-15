@@ -3,8 +3,10 @@ package internal
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/alecthomas/participle/v2"
+	"github.com/volatiletech/strmangle"
 )
 
 var ErrUnsupportedType = errors.New("unsupported type")
@@ -164,10 +166,32 @@ func (t TypeMap) Field() (f Field, err error) {
 	return f, nil
 }
 
+type TypeEnum struct {
+	Elems []TypeEnumElem `parser:"('Enum8' | 'Enum16') '(' ( @@ ','? )+ ')'"`
+}
+
+func (t TypeEnum) Field() (Field, error) {
+	f := Field{
+		Type: "string",
+	}
+	f.Consts = make(map[string]string)
+	for i := range t.Elems {
+		v := strings.Trim(t.Elems[i].Label, "'")
+		f.Consts[strmangle.TitleCase(v)] = v
+	}
+	return f, nil
+}
+
+type TypeEnumElem struct {
+	Label string `parser:"     @(String|Char)"`
+	Value int    `parser:" '=' @(Int)"`
+}
+
 type Type struct {
 	Unary *TypeUnary `parser:"  @@"`
 	Array *TypeArray `parser:"| @@"`
 	Map   *TypeMap   `parser:"| @@"`
+	Enum  *TypeEnum  `parser:"| @@"`
 }
 
 func (t Type) Field() (Field, error) {
@@ -178,12 +202,14 @@ func (t Type) Field() (Field, error) {
 		return t.Array.Field()
 	case t.Map != nil:
 		return t.Map.Field()
+	case t.Enum != nil:
+		return t.Enum.Field()
 	default:
 		panic("must never happen")
 	}
 }
 
-var typeParser = participle.MustBuild(&Type{})
+var typeParser = participle.MustBuild(&Type{}, participle.Unquote())
 
 func ParseType(exp string) (*Type, error) {
 	var obj Type

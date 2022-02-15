@@ -15,7 +15,7 @@ type Table struct {
 func (t Table) ToStruct() (Struct, error) {
 	var s = Struct{
 		Table:  t,
-		Name:   strmangle.TitleCase(t.Name),
+		Name:   strmangle.TitleCase(strmangle.Singular(t.Name)),
 		Fields: make([]Field, len(t.Columns)),
 	}
 	var err error
@@ -60,5 +60,6 @@ type Field struct {
 	Type    string
 	Tag     string
 	Imports []string
+	Consts  map[string]string
 	Column  Column
 }
