@@ -16,7 +16,7 @@ import (
     {{- $field := . }}
     const (
     {{- range $k, $v := .Consts }}
-        {{ $field.Name }}{{ $k }} {{ $field.Type }} = "{{ $v }}"
+        {{ $.Struct.Name }}{{ $field.Name }}{{ $k }} {{ $field.Type }} = "{{ $v }}"
     {{- end }}
     )
 {{- end }}
